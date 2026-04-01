@@ -1,212 +1,100 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Users, Plus, AtSign, Play, Trash2, ExternalLink, Search, TrendingUp, X, Terminal, Globe, Loader2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'motion/react'
-import { cn } from '@/lib/utils'
-
-interface Competitor {
-  id: string
-  name: string
-  meta_page_id: string | null
-  google_domain: string | null
-  created_at: string
-}
+import React from 'react';
+import { mockCompetitors } from '@/lib/mockData';
+import { Plus, MoreVertical, Play, ExternalLink, Calendar, BarChart2 } from 'lucide-react';
+import { cn, formatDate } from '@/lib/utils';
 
 export default function Competitors() {
-  const [isAdding, setIsAdding] = useState(false)
-  const [competitors, setCompetitors] = useState<Competitor[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [runningPipeline, setRunningPipeline] = useState<string | null>(null)
-  const [name, setName] = useState('')
-  const [metaPageId, setMetaPageId] = useState('')
-  const [googleDomain, setGoogleDomain] = useState('')
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    fetchCompetitors()
-  }, [])
-
-  async function fetchCompetitors() {
-    try {
-      const res = await fetch('/api/competitors')
-      if (res.ok) setCompetitors(await res.json())
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    if (!metaPageId && !googleDomain) {
-      setError('Informe pelo menos um: Meta Page ID ou Google Domain')
-      return
-    }
-    setSaving(true)
-    try {
-      const res = await fetch('/api/competitors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, meta_page_id: metaPageId || undefined, google_domain: googleDomain || undefined }),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Erro ao adicionar')
-      }
-      setName(''); setMetaPageId(''); setGoogleDomain('')
-      setIsAdding(false)
-      fetchCompetitors()
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function handleDelete(id: string) {
-    if (!confirm('Excluir este concorrente?')) return
-    await fetch(`/api/competitors/${id}`, { method: 'DELETE' })
-    setCompetitors(competitors.filter(c => c.id !== id))
-  }
-
-  async function handleRunPipeline(id: string) {
-    setRunningPipeline(id)
-    try {
-      const res = await fetch('/api/pipeline/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ competitorId: id }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        alert(`Pipeline concluído! ${data.newAdsCount} ads encontrados, ${data.analyzedCount} analisados.`)
-      } else {
-        alert(data.error || 'Erro no pipeline')
-      }
-    } catch {
-      alert('Erro ao rodar pipeline')
-    } finally {
-      setRunningPipeline(null)
-    }
-  }
-
   return (
-    <div className="max-w-6xl mx-auto py-12 px-6">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-black/10 pb-10">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] text-black/40">
-            <Terminal className="w-3 h-3" />
-            Competitive Intelligence / Watchlist.v1
-          </div>
-          <h1 className="text-5xl font-serif italic tracking-tight text-black">Concorrentes</h1>
-          <p className="text-black/60 max-w-xl font-sans leading-relaxed">
-            Monitore perfis de alto crescimento em seu nicho de mercado para extrair padrões estratégicos e benchmarks de desempenho.
-          </p>
+    <div className="space-y-10">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-display font-black text-text-primary tracking-tight">Concorrentes</h1>
+          <p className="text-text-secondary mt-2 font-medium">Gerencie as marcas que voce esta monitorando (3/10 do seu plano)</p>
         </div>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="px-8 py-4 bg-black text-white font-mono uppercase tracking-[0.2em] text-xs transition-all flex items-center gap-3 border border-black hover:bg-transparent hover:text-black group"
-        >
-          <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" /> Adicionar Perfil
+        <button className="w-full sm:w-auto bg-accent hover:bg-accent-hover text-white px-8 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98]">
+          <Plus size={20} />
+          Adicionar Concorrente
         </button>
-      </div>
+      </header>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-6 h-6 animate-spin text-muted" />
-        </div>
-      ) : competitors.length === 0 ? (
-        <div className="text-center py-20 border border-dashed border-black/10">
-          <Users className="w-12 h-12 text-black/20 mx-auto mb-4" />
-          <p className="text-black/40 font-bold text-sm uppercase tracking-widest">Nenhum concorrente adicionado</p>
-          <p className="text-black/30 text-xs mt-2">Clique em &quot;Adicionar Perfil&quot; para começar</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-black/10 border border-black/10">
-          {competitors.map((c) => (
-            <motion.div
-              key={c.id}
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-white p-8 group relative"
-            >
-              <div className="flex items-center justify-between mb-8">
-                <div className="w-16 h-16 border border-black/10 flex items-center justify-center bg-black/5">
-                  <span className="text-2xl font-bold text-black/30">{c.name.charAt(0).toUpperCase()}</span>
+      <div className="grid grid-cols-1 gap-8">
+        {mockCompetitors.map((comp) => (
+          <div key={comp.id} className="glass p-6 md:p-8 rounded-[2rem] group hover:border-accent/30 transition-all relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] -z-10 group-hover:bg-accent/10 transition-all duration-700" />
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
+              {/* Avatar & Info */}
+              <div className="flex gap-6 flex-1 w-full">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-accent/10 border border-accent/20 flex items-center justify-center text-2xl md:text-3xl font-display font-black text-accent shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                  {comp.name.charAt(0)}
                 </div>
-                <button onClick={() => handleDelete(c.id)} className="p-2 text-black/20 hover:text-red-500 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-1 mb-6">
-                <h3 className="font-serif italic text-xl text-black">{c.name}</h3>
-                {c.meta_page_id && (
-                  <div className="flex items-center gap-2">
-                    <AtSign className="w-3 h-3 text-black/40" />
-                    <span className="text-[10px] font-mono font-bold text-orange-600 uppercase tracking-widest">{c.meta_page_id}</span>
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <div className="flex items-center justify-between sm:justify-start gap-4">
+                    <h3 className="text-xl md:text-2xl font-display font-bold text-text-primary truncate">{comp.name}</h3>
+                    <button className="p-2 text-text-muted hover:text-text-primary hover:bg-surface rounded-xl transition-all">
+                      <MoreVertical size={20} />
+                    </button>
                   </div>
-                )}
-                {c.google_domain && (
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-3 h-3 text-black/40" />
-                    <span className="text-[10px] font-mono font-bold text-blue-600 uppercase tracking-widest">{c.google_domain}</span>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
+                    {comp.metaPageId && (
+                      <span className="text-xs font-bold text-text-secondary flex items-center gap-2 uppercase tracking-widest">
+                        <span className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(124,108,240,0.5)]" />
+                        Meta: @{comp.metaPageId}
+                      </span>
+                    )}
+                    {comp.googleDomain && (
+                      <span className="text-xs font-bold text-text-secondary flex items-center gap-2 uppercase tracking-widest">
+                        <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        Google: {comp.googleDomain}
+                      </span>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
 
-              <div className="pt-4 border-t border-black/5">
-                <button
-                  onClick={() => handleRunPipeline(c.id)}
-                  disabled={runningPipeline === c.id}
-                  className="w-full py-3 bg-black text-white font-mono uppercase tracking-[0.2em] text-[10px] hover:bg-accent transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {runningPipeline === c.id ? (
-                    <><Loader2 className="w-3 h-3 animate-spin" /> Scrapeando...</>
-                  ) : (
-                    <><TrendingUp className="w-3 h-3" /> Rodar Pipeline</>
-                  )}
-                </button>
+              {/* Stats */}
+              <div className="flex gap-6 sm:gap-12 w-full lg:w-auto px-0 lg:px-12 border-y lg:border-y-0 lg:border-x border-border py-6 lg:py-0 justify-between lg:justify-start">
+                <div className="text-center flex-1 lg:flex-none">
+                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2">Total Ads</p>
+                  <p className="text-xl md:text-2xl font-display font-black text-text-primary">{comp.adCount}</p>
+                </div>
+                <div className="text-center flex-1 lg:flex-none">
+                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2">Novos (7d)</p>
+                  <p className="text-xl md:text-2xl font-display font-black text-success">+{comp.newAdsLast7Days}</p>
+                </div>
+                <div className="text-center flex-1 lg:flex-none">
+                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2">Score Medio</p>
+                  <p className="text-xl md:text-2xl font-display font-black text-accent">{comp.averageScore}</p>
+                </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
 
-      <AnimatePresence>
-        {isAdding && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAdding(false)} className="absolute inset-0 bg-black/90 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-md bg-white border border-black p-10 shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]">
-              <div className="flex items-center justify-between mb-10">
-                <h2 className="text-3xl font-serif italic text-black">Novo Concorrente</h2>
-                <button onClick={() => setIsAdding(false)} className="p-2 text-black/20 hover:text-black transition-colors"><X className="w-6 h-6" /></button>
-              </div>
-              <form onSubmit={handleAdd} className="space-y-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-mono uppercase tracking-widest text-black/40">Nome do Concorrente</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Ex: Concorrente X" className="w-full bg-transparent border-b border-black/20 py-3 font-sans text-lg focus:outline-none focus:border-black transition-colors placeholder:text-black/20" />
-                </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-mono uppercase tracking-widest text-black/40">Meta Page ID (Facebook)</label>
-                  <input type="text" value={metaPageId} onChange={e => setMetaPageId(e.target.value)} placeholder="ID ou nome da página" className="w-full bg-transparent border-b border-black/20 py-3 font-sans text-lg focus:outline-none focus:border-black transition-colors placeholder:text-black/20" />
-                </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-mono uppercase tracking-widest text-black/40">Google Domain</label>
-                  <input type="text" value={googleDomain} onChange={e => setGoogleDomain(e.target.value)} placeholder="Ex: exemplo.com.br" className="w-full bg-transparent border-b border-black/20 py-3 font-sans text-lg focus:outline-none focus:border-black transition-colors placeholder:text-black/20" />
-                </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                <button type="submit" disabled={saving} className="w-full py-5 bg-black text-white font-mono uppercase tracking-[0.2em] text-xs hover:bg-transparent hover:text-black border border-black transition-all disabled:opacity-50">
-                  {saving ? 'Salvando...' : 'Adicionar Concorrente'}
+              {/* Actions */}
+              <div className="flex flex-row lg:flex-col gap-3 w-full lg:min-w-[180px]">
+                <button className="flex-1 lg:w-full py-3.5 bg-accent text-white text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 hover:bg-accent-hover shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <Play size={16} fill="currentColor" />
+                  Rodar Pipeline
                 </button>
-              </form>
-            </motion.div>
+                <button className="flex-1 lg:w-full py-3.5 bg-surface border border-border text-text-primary text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 hover:bg-surface-hover transition-all">
+                  <ExternalLink size={16} />
+                  Ver Ads
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 text-[10px] font-bold text-text-muted uppercase tracking-widest">
+              <div className="flex flex-wrap gap-6">
+                <span className="flex items-center gap-2"><Calendar size={14} className="text-accent" /> Ultimo scan: {formatDate(comp.lastScan)}</span>
+                <span className="flex items-center gap-2"><BarChart2 size={14} className="text-accent" /> Monitorando desde Jan/2026</span>
+              </div>
+              <span className="text-success flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(0,217,163,0.5)]" />
+                Radar Ativo
+              </span>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
