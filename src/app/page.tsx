@@ -536,8 +536,8 @@ function LandingPageInner() {
         <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs text-text-muted">2026 INFInder Intelligence. Todos os direitos reservados.</p>
           <div className="flex gap-8 text-xs text-text-muted">
-            <a href="#" className="hover:text-accent">Privacidade</a>
-            <a href="#" className="hover:text-accent">Termos</a>
+            <Link href="/privacy" className="hover:text-accent">Privacidade</Link>
+            <Link href="/terms" className="hover:text-accent">Termos</Link>
             <a href="#" className="hover:text-accent">Cookies</a>
           </div>
         </div>
