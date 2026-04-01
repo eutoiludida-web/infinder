@@ -69,7 +69,7 @@ export default function Dashboard() {
           setTotalCompetitors(Array.isArray(competitorsData) ? competitorsData.length : 0)
         }
       } catch (err) {
-        console.error('Erro ao carregar estatisticas:', err)
+        console.error('Erro ao carregar estatísticas:', err)
       } finally {
         setLoading(false)
       }
@@ -79,9 +79,9 @@ export default function Dashboard() {
   }, [])
 
   const stats = [
-    { label: 'Total de Anuncios', value: totalAds !== null ? String(totalAds) : '--', trend: '+12.5%', icon: Eye, color: 'text-blue-600' },
-    { label: 'Engajamento Medio', value: '8.4%', trend: '+2.1%', icon: Zap, color: 'text-accent' },
-    { label: 'Concorrentes Monitorados', value: totalCompetitors !== null ? String(totalCompetitors) : '--', trend: '+18.7%', icon: Users, color: 'text-emerald-600' },
+    { label: 'Visualizações Totais', value: totalAds !== null ? String(totalAds) : '--', trend: '+12.5%', icon: Eye, color: 'text-blue-600' },
+    { label: 'Engajamento Médio', value: '8.4%', trend: '+2.1%', icon: Zap, color: 'text-accent' },
+    { label: 'Novos Seguidores', value: totalCompetitors !== null ? String(totalCompetitors) : '--', trend: '+18.7%', icon: Users, color: 'text-emerald-600' },
     { label: 'Velocidade Viral', value: '94.2', trend: '-3.4%', icon: TrendingUp, color: 'text-amber-600', negative: true },
   ]
 
@@ -92,16 +92,16 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="h-px w-12 bg-accent" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-accent">Visao Geral de Inteligencia</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-accent">Visão Geral de Inteligência</span>
           </div>
           <h1 className="text-6xl font-display font-bold text-ink uppercase tracking-tight">
-            Metricas do <span className="text-accent">Sistema</span>
+            Métricas do <span className="text-accent">Sistema</span>
           </h1>
         </div>
 
         <div className="flex items-center gap-4">
           <button className="flex items-center gap-3 px-6 py-3 border border-line bg-white text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all">
-            <Calendar className="w-4 h-4" /> Ultimos 30 Dias
+            <Calendar className="w-4 h-4" /> Últimos 30 Dias
           </button>
           <button className="flex items-center gap-3 px-6 py-3 bg-ink text-white text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-all group">
             <Download className="w-4 h-4 group-hover:translate-y-1 transition-transform" /> Exportar Protocolo
@@ -127,7 +127,7 @@ export default function Dashboard() {
             </div>
             <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-2">{stat.label}</p>
             <p className="text-4xl font-display font-bold text-ink tracking-tighter">
-              {loading && (stat.label === 'Total de Anuncios' || stat.label === 'Concorrentes Monitorados') ? (
+              {loading && (stat.label === 'Visualizações Totais' || stat.label === 'Novos Seguidores') ? (
                 <span className="inline-block w-16 h-10 bg-black/5 animate-pulse" />
               ) : (
                 stat.value
@@ -142,13 +142,13 @@ export default function Dashboard() {
         <div className="lg:col-span-2 bg-white border border-line p-10 shadow-sm">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink mb-2">Trajetoria de Crescimento</h3>
-              <p className="text-sm text-muted font-light">Analise neural do alcance do conteudo ao longo do tempo</p>
+              <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink mb-2">Trajetória de Crescimento</h3>
+              <p className="text-sm text-muted font-light">Análise neural do alcance do conteúdo ao longo do tempo</p>
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-accent" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Visualizacoes</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Visualizações</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-slate-200" />
@@ -211,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white border border-line p-10 shadow-sm">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink mb-12">Distribuicao de Canais</h3>
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink mb-12">Distribuição de Canais</h3>
           <div className="h-[300px] w-full mb-12">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={channelData} layout="vertical">
@@ -262,7 +262,7 @@ export default function Dashboard() {
         <div className="p-10 border-b border-line flex items-center justify-between">
           <div>
             <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink mb-2">Log de Eventos Neurais</h3>
-            <p className="text-sm text-muted font-light">Atividade do sistema em tempo real e gatilhos de conteudo</p>
+            <p className="text-sm text-muted font-light">Atividade do sistema em tempo real e gatilhos de conteúdo</p>
           </div>
           <button className="text-[10px] font-bold uppercase tracking-widest text-accent hover:underline">Ver Protocolo Completo</button>
         </div>
@@ -279,11 +279,11 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {[
-                { id: 'PRT-9421', type: 'Sintese Viral', status: 'Concluido', time: '2 min atras', impact: '+4.2%' },
-                { id: 'PRT-9420', type: 'Scraping de Concorrentes', status: 'Ativo', time: '12 min atras', impact: 'N/A' },
-                { id: 'PRT-9419', type: 'Pontuacao Neural', status: 'Concluido', time: '45 min atras', impact: '+12.8%' },
-                { id: 'PRT-9418', type: 'Alinhamento de Marca', status: 'Falhou', time: '1 hora atras', impact: '-0.5%' },
-                { id: 'PRT-9417', type: 'Sincronizacao Global', status: 'Concluido', time: '3 horas atras', impact: '+1.2%' },
+                { id: 'PRT-9421', type: 'Síntese Viral', status: 'Concluído', time: '2 min atrás', impact: '+4.2%' },
+                { id: 'PRT-9420', type: 'Scraping de Concorrentes', status: 'Ativo', time: '12 min atrás', impact: 'N/A' },
+                { id: 'PRT-9419', type: 'Pontuação Neural', status: 'Concluído', time: '45 min atrás', impact: '+12.8%' },
+                { id: 'PRT-9418', type: 'Alinhamento de Marca', status: 'Falhou', time: '1 hora atrás', impact: '-0.5%' },
+                { id: 'PRT-9417', type: 'Sincronização Global', status: 'Concluído', time: '3 horas atrás', impact: '+1.2%' },
               ].map((row, i) => (
                 <tr key={i} className="border-b border-line last:border-0 hover:bg-slate-50 transition-colors cursor-pointer group">
                   <td className="px-10 py-8 font-mono text-[11px] font-bold text-ink">{row.id}</td>
@@ -296,7 +296,7 @@ export default function Dashboard() {
                   <td className="px-10 py-8">
                     <span className={cn(
                       "px-3 py-1 text-[9px] font-bold uppercase tracking-widest",
-                      row.status === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
+                      row.status === 'Concluído' ? "bg-emerald-50 text-emerald-600" :
                       row.status === 'Ativo' ? "bg-blue-50 text-blue-600" :
                       "bg-rose-50 text-rose-600"
                     )}>

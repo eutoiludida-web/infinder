@@ -75,12 +75,12 @@ export default function Landing() {
                   <div className="w-2 h-2 rounded-full bg-slate-200" />
                   <div className="w-2 h-2 rounded-full bg-slate-200" />
                 </div>
-                <div className="w-full h-[400px] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <Sparkles className="w-12 h-12 text-accent mx-auto" />
-                    <p className="text-muted text-sm font-display uppercase tracking-widest">INFInder Dashboard</p>
-                  </div>
-                </div>
+                <img
+                  src="https://picsum.photos/seed/inf-hero/1200/900"
+                  alt="INFInder Interface"
+                  className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000"
+                  referrerPolicy="no-referrer"
+                />
               </div>
 
               <motion.div

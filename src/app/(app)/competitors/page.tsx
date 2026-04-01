@@ -102,7 +102,7 @@ export default function Competitors() {
           </div>
           <h1 className="text-5xl font-serif italic tracking-tight text-black">Concorrentes</h1>
           <p className="text-black/60 max-w-xl font-sans leading-relaxed">
-            Monitore perfis de alto crescimento em seu nicho de mercado para extrair padrões estratégicos.
+            Monitore perfis de alto crescimento em seu nicho de mercado para extrair padrões estratégicos e benchmarks de desempenho.
           </p>
         </div>
         <button

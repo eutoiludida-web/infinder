@@ -68,7 +68,7 @@ export default function Ads() {
         setTotalPages(data.totalPages || 1)
       }
     } catch (err) {
-      console.error('Erro ao carregar anuncios:', err)
+      console.error('Erro ao carregar anúncios:', err)
     } finally {
       setLoading(false)
     }
@@ -101,7 +101,7 @@ export default function Ads() {
         )
       } else {
         const err = await res.json()
-        alert(err.error || 'Erro ao analisar anuncio')
+        alert(err.error || 'Erro ao analisar anúncio')
       }
     } catch (err) {
       console.error('Erro ao analisar:', err)
@@ -137,9 +137,9 @@ export default function Ads() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px w-8 bg-accent" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Inteligencia de Anuncios</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Inteligência de Anúncios</span>
             </div>
-            <h1 className="text-5xl font-display font-bold text-ink uppercase tracking-tight">Anuncios de Concorrentes</h1>
+            <h1 className="text-5xl font-display font-bold text-ink uppercase tracking-tight">Anúncios de Concorrentes</h1>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-line border border-line">
@@ -162,11 +162,11 @@ export default function Ads() {
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="h-px w-8 bg-accent" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Inteligencia de Anuncios</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Inteligência de Anúncios</span>
           </div>
-          <h1 className="text-5xl font-display font-bold text-ink uppercase tracking-tight">Anuncios de Concorrentes</h1>
+          <h1 className="text-5xl font-display font-bold text-ink uppercase tracking-tight">Anúncios de Concorrentes</h1>
           {total > 0 && (
-            <p className="text-xs text-muted mt-2 font-bold uppercase tracking-widest">{total} anuncios encontrados</p>
+            <p className="text-xs text-muted mt-2 font-bold uppercase tracking-widest">{total} anúncios encontrados</p>
           )}
         </div>
         <div className="flex items-center gap-4">
@@ -174,7 +174,7 @@ export default function Ads() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
             <input
               type="text"
-              placeholder="Buscar biblioteca de anuncios..."
+              placeholder="Buscar biblioteca de anúncios..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 bg-white border border-line focus:outline-none focus:border-accent transition-colors text-xs font-bold uppercase tracking-widest"
@@ -190,8 +190,8 @@ export default function Ads() {
       {filteredAds.length === 0 ? (
         <div className="border border-line bg-white p-20 text-center">
           <Megaphone className="w-10 h-10 text-muted mx-auto mb-4" />
-          <p className="text-sm text-muted font-bold uppercase tracking-widest">Nenhum anuncio encontrado</p>
-          <p className="text-xs text-muted mt-2">Execute o pipeline de scraping para coletar anuncios de concorrentes.</p>
+          <p className="text-sm text-muted font-bold uppercase tracking-widest">Nenhum anúncio encontrado</p>
+          <p className="text-xs text-muted mt-2">Execute o pipeline de scraping para coletar anúncios de concorrentes.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 border border-line bg-line gap-px">
@@ -209,7 +209,7 @@ export default function Ads() {
                 <div className="aspect-[4/5] overflow-hidden relative">
                   <img
                     src={getAdThumbnail(ad)}
-                    alt={ad.headline || 'Anuncio'}
+                    alt={ad.headline || 'Anúncio'}
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                     referrerPolicy="no-referrer"
                   />
@@ -235,7 +235,7 @@ export default function Ads() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-display font-bold text-ink uppercase tracking-tight text-lg mb-1">
-                        {ad.headline || 'Sem titulo'}
+                        {ad.headline || 'Sem título'}
                       </h4>
                       <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
                         {ad.competitors?.name || 'Concorrente'}
@@ -283,7 +283,7 @@ export default function Ads() {
             disabled={page >= totalPages}
             className="px-6 py-3 border border-line text-[10px] font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-slate-50 transition-all"
           >
-            Proximo
+            Próximo
           </button>
         </div>
       )}
@@ -348,10 +348,10 @@ export default function Ads() {
                   <div>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="h-px w-6 bg-accent" />
-                      <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-accent">Analise Neural</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-accent">Análise Neural</span>
                     </div>
                     <h2 className="text-3xl font-display font-bold text-ink uppercase tracking-tight">
-                      {selectedAd.headline || 'Sem titulo'}
+                      {selectedAd.headline || 'Sem título'}
                     </h2>
                   </div>
                   <button
@@ -369,7 +369,7 @@ export default function Ads() {
                       <p className="text-sm font-bold text-ink uppercase tracking-tight">{selectedAd.platform || 'N/A'}</p>
                     </div>
                     <div className="bg-white p-6">
-                      <p className="text-[9px] font-bold text-muted uppercase tracking-widest mb-2">Duracao Ativa</p>
+                      <p className="text-[9px] font-bold text-muted uppercase tracking-widest mb-2">Duração Ativa</p>
                       <p className="text-sm font-bold text-ink uppercase tracking-tight">{getDaysRunning(selectedAd.created_at)} Dias Rodando</p>
                     </div>
                   </div>
@@ -379,7 +379,7 @@ export default function Ads() {
                     <>
                       <div className="space-y-6">
                         <h4 className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-3">
-                          <Sparkles className="w-4 h-4 text-accent" /> Inteligencia de Copywriting
+                          <Sparkles className="w-4 h-4 text-accent" /> Inteligência de Copywriting
                         </h4>
                         <div className="p-8 border border-line bg-slate-50 space-y-6">
                           {selectedAd.ad_text && (
@@ -389,7 +389,7 @@ export default function Ads() {
                           )}
                           {selectedAd.ad_analyses[0].copy_analysis && (
                             <div className="pt-6 border-t border-line">
-                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Analise de Copy</p>
+                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Análise de Copy</p>
                               <p className="text-xs text-muted leading-relaxed">
                                 {selectedAd.ad_analyses[0].copy_analysis}
                               </p>
@@ -397,7 +397,7 @@ export default function Ads() {
                           )}
                           {selectedAd.ad_analyses[0].conversion_logic && (
                             <div className="pt-6 border-t border-line">
-                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Logica de Conversao</p>
+                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Lógica de Conversão</p>
                               <p className="text-xs text-muted leading-relaxed">
                                 {selectedAd.ad_analyses[0].conversion_logic}
                               </p>
@@ -405,7 +405,7 @@ export default function Ads() {
                           )}
                           {selectedAd.ad_analyses[0].recommendations && (
                             <div className="pt-6 border-t border-line">
-                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Recomendacoes</p>
+                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest mb-3">Recomendações</p>
                               <p className="text-xs text-muted leading-relaxed">
                                 {selectedAd.ad_analyses[0].recommendations}
                               </p>
@@ -418,7 +418,7 @@ export default function Ads() {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-3xl rounded-full" />
                         <div className="relative z-10">
                           <h4 className="text-[11px] font-bold uppercase tracking-widest text-accent mb-6 flex items-center gap-3">
-                            <TrendingUp className="w-4 h-4" /> Pontuacao de Performance
+                            <TrendingUp className="w-4 h-4" /> Pontuação de Performance
                           </h4>
                           <div className="flex items-center gap-10">
                             <div className="text-7xl font-display font-bold text-white">
@@ -433,7 +433,7 @@ export default function Ads() {
                               )}
                               <div className="flex items-center gap-2 text-emerald-400">
                                 <ArrowUpRight className="w-4 h-4" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Alta Probabilidade de Retencao</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Alta Probabilidade de Retenção</span>
                               </div>
                             </div>
                           </div>
@@ -443,7 +443,7 @@ export default function Ads() {
                   ) : (
                     <div className="space-y-6">
                       <h4 className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-accent" /> Inteligencia de Copywriting
+                        <Sparkles className="w-4 h-4 text-accent" /> Inteligência de Copywriting
                       </h4>
                       {selectedAd.ad_text && (
                         <div className="p-8 border border-line bg-slate-50">
@@ -454,7 +454,7 @@ export default function Ads() {
                       )}
                       <div className="p-8 border border-dashed border-line text-center space-y-4">
                         <p className="text-xs text-muted uppercase tracking-widest font-bold">
-                          Este anuncio ainda nao foi analisado
+                          Este anúncio ainda não foi analisado
                         </p>
                         <button
                           onClick={() => handleAnalyze(selectedAd.id)}
@@ -483,7 +483,7 @@ export default function Ads() {
 
                 <div className="p-10 bg-slate-50 border-t border-line mt-auto">
                   <button className="w-full py-6 bg-ink text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-accent transition-all flex items-center justify-center gap-4 group">
-                    Ver na Biblioteca de Anuncios <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:translate-y-[-1px] transition-transform" />
+                    Ver na Biblioteca de Anúncios <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:translate-y-[-1px] transition-transform" />
                   </button>
                 </div>
               </div>

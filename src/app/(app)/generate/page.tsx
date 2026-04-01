@@ -44,8 +44,8 @@ export default function Generate() {
             { time: '25-40s', text: 'Resultado: Agenda limpa e foco total.' },
             { time: '40-45s', text: 'CTA: Comente "FOCO" para receber meu guia.' }
           ],
-          captionIg: 'Cansado de procrastinar? \n\nEu testei todas as técnicas e esta foi a única que realmente funcionou para mim. O segredo não é trabalhar mais, é trabalhar melhor.\n\nAssista até o fim e me diga o que achou!\n\n#produtividade #foco #gestaodotempo',
-          captionTt: 'Como dobrei minha produtividade em 1 semana #produtividade #dicas #foco',
+          captionIg: 'Cansado de procrastinar? 😴\n\nEu testei todas as técnicas e esta foi a única que realmente funcionou para mim. O segredo não é trabalhar mais, é trabalhar melhor.\n\nAssista até o fim e me diga o que achou! 👇\n\n#produtividade #foco #gestaodotempo',
+          captionTt: 'Como dobrei minha produtividade em 1 semana 🚀 #produtividade #dicas #foco',
           hashtags: ['produtividade', 'foco', 'sucesso', 'rotina', 'disciplina', 'marketing', 'negocios', 'mindset', 'hacks', 'dicas'],
           cta: 'Comente "FOCO" para o guia'
         },
@@ -59,8 +59,8 @@ export default function Generate() {
             { time: '15-30s', text: 'A mensagem: Consistência vence a perfeição.' },
             { time: '30-40s', text: 'CTA: Siga para os bastidores reais.' }
           ],
-          captionIg: 'Nem tudo são flores no mundo digital...\n\nPostamos o resultado, mas o processo é onde a mágica acontece. Não desista no primeiro erro de exportação!\n\nQuem mais se identifica?\n\n#bastidores #criador #realidade #marketingdigital',
-          captionTt: 'A vida real de um criador de conteúdo #bastidores #realidade #vlog',
+          captionIg: 'Nem tudo são flores no mundo digital... 🥀\n\nPostamos o resultado, mas o processo é onde a mágica acontece. Não desista no primeiro erro de exportação!\n\nQuem mais se identifica? 😂\n\n#bastidores #criador #realidade #marketingdigital',
+          captionTt: 'A vida real de um criador de conteúdo 🤡 #bastidores #realidade #vlog',
           hashtags: ['bastidores', 'criador', 'realidade', 'vlog', 'marketing', 'humor', 'trabalho', 'digital', 'conteudo', 'dicas'],
           cta: 'Siga para mais bastidores'
         }

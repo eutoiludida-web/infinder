@@ -6,11 +6,11 @@ import { cn } from '@/lib/utils'
 
 export default function Settings() {
   const sections = [
-    { id: 'profile', icon: User, label: 'Perfil', desc: 'Gerencie suas informacoes pessoais e foto.' },
-    { id: 'notifications', icon: Bell, label: 'Notificacoes', desc: 'Escolha como e quando deseja ser notificado.' },
-    { id: 'security', icon: Shield, label: 'Seguranca', desc: 'Senha, autenticacao de dois fatores e sessoes.' },
-    { id: 'billing', icon: CreditCard, label: 'Faturamento', desc: 'Planos, historico de pagamentos e cartoes.' },
-    { id: 'integrations', icon: Globe, label: 'Integracoes', desc: 'Conecte suas contas do Instagram e TikTok.' },
+    { id: 'profile', icon: User, label: 'Perfil', desc: 'Gerencie suas informações pessoais e foto.' },
+    { id: 'notifications', icon: Bell, label: 'Notificações', desc: 'Escolha como e quando deseja ser notificado.' },
+    { id: 'security', icon: Shield, label: 'Segurança', desc: 'Senha, autenticação de dois fatores e sessões.' },
+    { id: 'billing', icon: CreditCard, label: 'Faturamento', desc: 'Planos, histórico de pagamentos e cartões.' },
+    { id: 'integrations', icon: Globe, label: 'Integrações', desc: 'Conecte suas contas do Instagram e TikTok.' },
     { id: 'support', icon: HelpCircle, label: 'Suporte', desc: 'Central de ajuda e contato com a equipe.' },
   ]
 
@@ -21,11 +21,11 @@ export default function Settings() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
             <SettingsIcon className="w-3 h-3 text-accent" />
-            Preferencias do Sistema
+            Preferências do Sistema
           </div>
-          <h1 className="text-5xl font-display font-bold uppercase tracking-tight text-black">Configuracoes</h1>
+          <h1 className="text-5xl font-display font-bold uppercase tracking-tight text-black">Configurações</h1>
           <p className="text-black/60 max-w-xl font-sans leading-relaxed">
-            Gerencie sua conta, protocolos de seguranca e preferencias da plataforma.
+            Gerencie sua conta, protocolos de segurança e preferências da plataforma.
           </p>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function Settings() {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-black/40">Endereco de Email</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-black/40">Endereço de Email</label>
                 <input
                   type="email"
                   defaultValue="annie@100fronteiras.com"
@@ -100,15 +100,15 @@ export default function Settings() {
               <div className="space-y-3">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-black/40">Idioma</label>
                 <select className="w-full bg-transparent border-b border-black/10 py-2 font-sans focus:outline-none focus:border-black transition-colors appearance-none cursor-pointer">
-                  <option>Portugues (Brasil)</option>
+                  <option>Português (Brasil)</option>
                   <option>English (US)</option>
-                  <option>Espanol</option>
+                  <option>Español</option>
                 </select>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-black/40">Fuso Horario</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-black/40">Fuso Horário</label>
                 <select className="w-full bg-transparent border-b border-black/10 py-2 font-sans focus:outline-none focus:border-black transition-colors appearance-none cursor-pointer">
-                  <option>(GMT-03:00) Sao Paulo</option>
+                  <option>(GMT-03:00) São Paulo</option>
                   <option>(GMT-05:00) New York</option>
                 </select>
               </div>
@@ -116,7 +116,7 @@ export default function Settings() {
 
             <div className="pt-10 border-t border-black/5 flex justify-end">
               <button className="px-10 py-4 bg-black text-white font-bold uppercase tracking-[0.2em] text-xs hover:bg-transparent hover:text-black border border-black transition-all">
-                Salvar Alteracoes
+                Salvar Alterações
               </button>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function Settings() {
           <div className="bg-red-50/50 border border-red-100 p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="space-y-1">
               <h4 className="text-red-900 font-display font-bold uppercase text-xl">Zona de Perigo</h4>
-              <p className="text-red-600/60 text-xs font-sans">Excluir sua conta removera permanentemente todos os seus dados e ativos.</p>
+              <p className="text-red-600/60 text-xs font-sans">Excluir sua conta removerá permanentemente todos os seus dados e ativos.</p>
             </div>
             <button className="px-8 py-3 bg-white border border-red-200 text-red-600 font-bold uppercase tracking-widest text-[10px] hover:bg-red-600 hover:text-white transition-all">
               Excluir Conta

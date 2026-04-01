@@ -126,16 +126,16 @@ export default function Brand() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
             <Briefcase className="w-3 h-3 text-accent" />
-            Configuracao de Identidade de Marca
+            Configuração de Identidade de Marca
           </div>
           <h1 className="text-5xl font-display font-bold uppercase tracking-tight text-black">Identidade de Marca</h1>
           <p className="text-black/60 max-w-md font-sans leading-relaxed">
-            Defina o DNA central da sua marca para calibrar o motor de IA para geracao de conteudo de alta precisao.
+            Defina o DNA central da sua marca para calibrar o motor de IA para geração de conteúdo de alta precisão.
           </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right hidden md:block">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-black/40">Ultima Sincronizacao</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-black/40">Última Sincronização</div>
             <div className="text-xs font-bold">
               {brand?.updated_at || brand?.created_at
                 ? new Date(brand.updated_at || brand.created_at).toLocaleString('pt-BR', { timeZone: 'UTC' })
@@ -212,7 +212,7 @@ export default function Brand() {
             <div className="space-y-4">
               <label className="text-[11px] font-bold uppercase tracking-widest text-black/50 flex items-center gap-2">
                 <span className="w-1 h-1 bg-black rounded-full" />
-                Persona do Publico-Alvo
+                Persona do Público-Alvo
               </label>
               <div className="relative group">
                 <Users className="absolute left-0 top-0 w-4 h-4 text-black/20 group-focus-within:text-black transition-colors" />
@@ -228,12 +228,12 @@ export default function Brand() {
             <div className="space-y-4">
               <label className="text-[11px] font-bold uppercase tracking-widest text-black/50 flex items-center gap-2">
                 <span className="w-1 h-1 bg-black rounded-full" />
-                Proposta Unica de Valor (UVP)
+                Proposta Única de Valor (UVP)
               </label>
               <div className="relative group">
                 <Sparkles className="absolute left-0 top-0 w-4 h-4 text-black/20 group-focus-within:text-black transition-colors" />
                 <textarea
-                  placeholder="O que torna a inteligencia da sua marca unica?"
+                  placeholder="O que torna a inteligência da sua marca única?"
                   className="w-full pl-8 bg-transparent border-b border-black/10 py-2 font-sans text-base focus:outline-none focus:border-black transition-all min-h-[100px] resize-none leading-relaxed"
                   value={uvp}
                   onChange={(e) => setUvp(e.target.value)}
@@ -256,8 +256,8 @@ export default function Brand() {
             </div>
             <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 leading-relaxed">
               {identityScore >= 75
-                ? 'Perfil de alta precisao detectado. A geracao de IA sera altamente alinhada com o DNA da marca.'
-                : 'Preencha mais campos para aumentar a precisao da geracao de conteudo por IA.'}
+                ? 'Perfil de alta precisão detectado. A geração de IA será altamente alinhada com o DNA da marca.'
+                : 'Preencha mais campos para aumentar a precisão da geração de conteúdo por IA.'}
             </p>
           </div>
 
@@ -284,7 +284,7 @@ export default function Brand() {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  Salvar Configuracao
+                  Salvar Configuração
                 </>
               )}
             </button>
@@ -311,7 +311,7 @@ export default function Brand() {
               }}
               className="w-full py-4 font-bold uppercase tracking-[0.2em] text-[10px] text-black/40 hover:text-black transition-all"
             >
-              Descartar Alteracoes
+              Descartar Alterações
             </button>
           </div>
         </div>
