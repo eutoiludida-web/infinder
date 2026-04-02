@@ -5,16 +5,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
-import { Bell, Search, User, Menu, X, Sun, Moon, Zap } from 'lucide-react';
+import { Bell, Search, User, Menu, X, Sun, Moon, Zap, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { createSupabaseBrowser } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
+  const router = useRouter();
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const supabase = createSupabaseBrowser();
@@ -24,9 +27,23 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
         const email = data.user.email ?? '';
         setUserName(fullName || email.split('@')[0]);
         setUserEmail(email);
+      } else {
+        router.push('/auth');
       }
+      setAuthChecked(true);
+    }).catch(() => {
+      router.push('/auth');
+      setAuthChecked(true);
     });
-  }, []);
+  }, [router]);
+
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-bg-primary">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-bg-primary selection:bg-accent/30 selection:text-white">
