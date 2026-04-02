@@ -45,26 +45,27 @@ export interface NormalizedMetaAd {
   raw_data: MetaAdRaw
 }
 
-async function waitForRun(runId: string, timeoutMs = 300000): Promise<string> {
+async function waitForRun(runId: string, timeoutMs = 50000): Promise<string> {
   const startTime = Date.now()
 
   while (Date.now() - startTime < timeoutMs) {
     const res = await fetch(
       `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`
     )
+    if (!res.ok) throw new Error(`Apify polling failed: ${res.status}`)
     const data: ApifyRunResponse = await res.json()
 
     if (data.data.status === 'SUCCEEDED') {
       return data.data.defaultDatasetId
     }
     if (data.data.status === 'FAILED' || data.data.status === 'ABORTED') {
-      throw new Error(`Apify run ${data.data.status}`)
+      throw new Error(`Scraping falhou: ${data.data.status}`)
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 5000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
   }
 
-  throw new Error('Apify run timed out')
+  throw new Error('Busca demorou demais. Tente novamente com uma keyword mais específica.')
 }
 
 export async function scrapeMetaAds(
@@ -79,7 +80,7 @@ export async function scrapeMetaAds(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         searchQuery: pageIdOrName,
-        maxResults: limit,
+        maxResults: Math.min(limit, 10),
         countryCode: 'BR',
       }),
     }

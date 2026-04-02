@@ -1,3 +1,5 @@
+export const maxDuration = 60
+
 import { z } from 'zod/v4'
 import { getSession } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase'

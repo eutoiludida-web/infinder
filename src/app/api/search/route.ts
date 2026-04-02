@@ -1,3 +1,5 @@
+export const maxDuration = 60
+
 import { z } from 'zod/v4'
 import { getSession } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase'
@@ -82,6 +84,14 @@ export async function POST(req: Request) {
     })
   } catch (error) {
     console.error('Search error:', error)
-    return Response.json({ error: 'Erro interno do servidor' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : 'Erro desconhecido'
+    // Show user-friendly messages for known errors
+    if (msg.includes('demorou demais')) {
+      return Response.json({ error: msg }, { status: 504 })
+    }
+    if (msg.includes('Apify start failed')) {
+      return Response.json({ error: 'Erro ao conectar com o serviço de busca. Verifique sua API key do Apify.' }, { status: 502 })
+    }
+    return Response.json({ error: 'Erro ao buscar ads. Tente novamente.' }, { status: 500 })
   }
 }
