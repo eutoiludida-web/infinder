@@ -144,50 +144,94 @@ export default function AdsIntelligence() {
     fetchAds(1)
   }, [fetchAds])
 
-  // Keyword search — scrape Meta Ad Library via Apify
+  const [searchStatus, setSearchStatus] = useState<string | null>(null)
+
+  function mapSearchAd(ad: any, keyword: string) {
+    return {
+      id: ad.id || `search-${Math.random()}`,
+      externalId: ad.external_id || ad.id,
+      platform: 'meta' as const,
+      competitorId: '',
+      competitorName: ad.page_name || keyword,
+      thumbnailUrl: ad.image_urls?.[0] || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=400&h=500',
+      headline: ad.headline || ad.ad_text?.slice(0, 80) || 'Sem titulo',
+      text: ad.ad_text || '',
+      ctaText: ad.cta_text || '',
+      landingPageUrl: ad.landing_page_url || '',
+      status: (ad.status || 'active') as 'active' | 'inactive',
+      startDate: ad.started_at || new Date().toISOString(),
+      daysActive: ad.started_at ? Math.floor((Date.now() - new Date(ad.started_at).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+      score: undefined,
+      isWinner: false,
+      isNew: true,
+    }
+  }
+
+  // Poll for search results
+  async function pollResults(runId: string, keyword: string) {
+    const maxAttempts = 40 // ~2 minutes
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(r => setTimeout(r, 3000))
+      try {
+        const res = await fetch(`/api/search?runId=${runId}`)
+        if (!res.ok) continue
+        const data = await res.json()
+
+        if (data.status === 'SUCCEEDED') {
+          const mapped = (data.ads || []).map((ad: any) => mapSearchAd(ad, keyword))
+          setAds(mapped)
+          setTotal(mapped.length)
+          setTotalPages(1)
+          setPage(1)
+          setSearching(false)
+          setSearchStatus(null)
+          return
+        }
+        if (data.status === 'FAILED') {
+          setError(data.error || 'A busca falhou. Tente outra keyword.')
+          setSearching(false)
+          setSearchStatus(null)
+          return
+        }
+        setSearchStatus(`Buscando ads... (${(i + 1) * 3}s)`)
+      } catch {
+        // ignore polling errors, retry
+      }
+    }
+    setError('Busca demorou demais. Tente uma keyword mais específica.')
+    setSearching(false)
+    setSearchStatus(null)
+  }
+
+  // Keyword search — starts Apify job, then polls
   const handleKeywordSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!keywordSearch.trim()) return
     setSearching(true)
     setError(null)
+    setSearchStatus('Iniciando busca...')
+    setAds([])
     try {
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword: keywordSearch.trim(), limit: 20 }),
+        body: JSON.stringify({ keyword: keywordSearch.trim() }),
       })
       if (!res.ok) {
         const data = await res.json()
         throw new Error(data.error || 'Erro na busca')
       }
       const data = await res.json()
-      // Map search results to frontend Ad type
-      const mapped = (data.ads || []).map((ad: any, i: number) => ({
-        id: ad.id || `search-${i}`,
-        externalId: ad.external_id || `search-${i}`,
-        platform: 'meta' as const,
-        competitorId: '',
-        competitorName: ad.page_name || keywordSearch,
-        thumbnailUrl: ad.image_urls?.[0] || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=400&h=500',
-        headline: ad.headline || ad.ad_text?.slice(0, 80) || 'Sem titulo',
-        text: ad.ad_text || '',
-        ctaText: ad.cta_text || '',
-        landingPageUrl: ad.landing_page_url || '',
-        status: ad.status || 'active',
-        startDate: ad.started_at || new Date().toISOString(),
-        daysActive: ad.started_at ? Math.floor((Date.now() - new Date(ad.started_at).getTime()) / (1000 * 60 * 60 * 24)) : 0,
-        score: undefined,
-        isWinner: false,
-        isNew: true,
-      }))
-      setAds(mapped)
-      setTotal(mapped.length)
-      setTotalPages(1)
-      setPage(1)
+      if (data.runId) {
+        setSearchStatus('Scrapeando Meta Ad Library...')
+        pollResults(data.runId, keywordSearch.trim())
+      } else {
+        throw new Error('Erro ao iniciar busca')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro na busca')
-    } finally {
       setSearching(false)
+      setSearchStatus(null)
     }
   }
 
@@ -296,7 +340,7 @@ export default function AdsIntelligence() {
           className="px-8 py-3.5 bg-accent hover:bg-accent-hover text-white rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
           {searching ? (
-            <><Loader2 size={16} className="animate-spin" /> Buscando...</>
+            <><Loader2 size={16} className="animate-spin" /> {searchStatus || 'Buscando...'}</>
           ) : (
             <><SearchIcon size={16} /> Buscar Ads</>
           )}

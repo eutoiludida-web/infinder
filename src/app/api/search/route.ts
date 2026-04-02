@@ -2,15 +2,16 @@ export const maxDuration = 60
 
 import { z } from 'zod/v4'
 import { getSession } from '@/lib/auth'
-import { getSupabaseAdmin } from '@/lib/supabase'
-import { checkUsageLimits, incrementUsage } from '@/lib/usage'
-import { scrapeMetaAds } from '@/lib/apify-meta'
+import { checkUsageLimits } from '@/lib/usage'
+
+const APIFY_TOKEN = process.env.APIFY_API_TOKEN!
+const ACTOR_ID = 'curious_coder~facebook-ads-library-scraper'
 
 const RequestSchema = z.object({
   keyword: z.string().min(1).max(200),
-  limit: z.number().min(1).max(50).optional(),
 })
 
+// POST /api/search — Start a search job (returns runId immediately)
 export async function POST(req: Request) {
   const user = await getSession()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -24,74 +25,102 @@ export async function POST(req: Request) {
   }
 
   try {
-    const ads = await scrapeMetaAds(body.data.keyword, body.data.limit || 20)
+    const adLibraryUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&q=${encodeURIComponent(body.data.keyword)}`
 
-    // Save ads to DB — use user_id + external_id unique constraint
-    const supabaseAdmin = getSupabaseAdmin()
-    let savedCount = 0
-
-    for (const ad of ads) {
-      if (!ad.external_id) continue
-
-      const { error } = await supabaseAdmin
-        .from('ads')
-        .upsert(
-          {
-            user_id: user.id,
-            platform: ad.platform,
-            external_id: ad.external_id,
-            ad_text: ad.ad_text,
-            headline: ad.headline,
-            cta_text: ad.cta_text,
-            image_urls: ad.image_urls,
-            video_url: ad.video_url,
-            landing_page_url: ad.landing_page_url,
-            format: ad.format,
-            status: ad.status,
-            started_at: ad.started_at,
-            ended_at: ad.ended_at,
-            raw_data: ad.raw_data,
-          },
-          { onConflict: 'user_id,external_id', ignoreDuplicates: true }
-        )
-
-      if (!error) {
-        savedCount++
-        await incrementUsage(user.id, 'ads_scraped')
+    const runRes = await fetch(
+      `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          urls: [{ url: adLibraryUrl }],
+          maxAds: 10,
+        }),
       }
+    )
+
+    if (!runRes.ok) {
+      return Response.json({ error: 'Erro ao conectar com o serviço de busca.' }, { status: 502 })
     }
 
-    // Return results directly (don't need to re-fetch from DB)
-    return Response.json({
-      ads: ads.map((ad, i) => ({
-        id: `search-${i}`,
-        external_id: ad.external_id,
-        platform: ad.platform,
-        ad_text: ad.ad_text,
-        headline: ad.headline,
-        cta_text: ad.cta_text,
-        image_urls: ad.image_urls,
-        video_url: ad.video_url,
-        landing_page_url: ad.landing_page_url,
-        format: ad.format,
-        status: ad.status,
-        started_at: ad.started_at,
-        ended_at: ad.ended_at,
-        page_name: ad.raw_data.page_name || body.data.keyword,
-      })),
-      total: ads.length,
-      saved: savedCount,
-    })
+    const runData = await runRes.json()
+    const runId = runData.data?.id
+
+    if (!runId) {
+      return Response.json({ error: 'Erro ao iniciar busca.' }, { status: 500 })
+    }
+
+    // Return immediately with runId — frontend will poll
+    return Response.json({ runId, status: 'RUNNING' })
   } catch (error) {
-    console.error('Search error:', error)
-    const msg = error instanceof Error ? error.message : 'Erro desconhecido'
-    // Show user-friendly messages for known errors
-    if (msg.includes('demorou demais')) {
-      return Response.json({ error: msg }, { status: 504 })
+    console.error('Search start error:', error)
+    return Response.json({ error: 'Erro ao iniciar busca.' }, { status: 500 })
+  }
+}
+
+// GET /api/search?runId=xxx — Check status and get results
+export async function GET(req: Request) {
+  const user = await getSession()
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { searchParams } = new URL(req.url)
+  const runId = searchParams.get('runId')
+
+  if (!runId) {
+    return Response.json({ error: 'runId required' }, { status: 400 })
+  }
+
+  try {
+    // Check run status
+    const statusRes = await fetch(
+      `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`
+    )
+    if (!statusRes.ok) {
+      return Response.json({ error: 'Erro ao verificar status.' }, { status: 500 })
     }
-    if (msg.includes('Apify start failed')) {
-      return Response.json({ error: 'Erro ao conectar com o serviço de busca. Verifique sua API key do Apify.' }, { status: 502 })
+
+    const statusData = await statusRes.json()
+    const status = statusData.data?.status
+    const datasetId = statusData.data?.defaultDatasetId
+
+    if (status === 'RUNNING' || status === 'READY') {
+      return Response.json({ status: 'RUNNING', runId })
     }
-    return Response.json({ error: 'Erro ao buscar ads. Tente novamente.' }, { status: 500 })
+
+    if (status === 'FAILED' || status === 'ABORTED') {
+      return Response.json({ status: 'FAILED', error: 'A busca falhou. Tente outra keyword.' })
+    }
+
+    if (status === 'SUCCEEDED' && datasetId) {
+      // Fetch results
+      const itemsRes = await fetch(
+        `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}&limit=20`
+      )
+      const items = await itemsRes.json()
+
+      const ads = (Array.isArray(items) ? items : []).map((raw: any, i: number) => ({
+        id: `search-${i}`,
+        external_id: raw.id || raw.ad_id || `ext-${i}`,
+        platform: 'meta',
+        ad_text: raw.ad_creative_bodies?.join('\n') || raw.body || null,
+        headline: raw.ad_creative_link_titles?.join(' | ') || raw.title || null,
+        cta_text: raw.cta_text || raw.cta_type || null,
+        image_urls: raw.images?.map((img: any) => img.url || img).filter(Boolean) || [],
+        video_url: raw.videos?.[0]?.url || null,
+        landing_page_url: raw.ad_snapshot_url || raw.link_url || null,
+        format: raw.videos?.length ? 'video' : (raw.images?.length > 1 ? 'carousel' : 'image'),
+        status: raw.ad_delivery_stop_time ? 'inactive' : 'active',
+        started_at: raw.ad_delivery_start_time || null,
+        ended_at: raw.ad_delivery_stop_time || null,
+        page_name: raw.page_name || raw.advertiser_name || 'Desconhecido',
+      }))
+
+      return Response.json({ status: 'SUCCEEDED', ads, total: ads.length })
+    }
+
+    return Response.json({ status, runId })
+  } catch (error) {
+    console.error('Search poll error:', error)
+    return Response.json({ error: 'Erro ao verificar busca.' }, { status: 500 })
   }
 }

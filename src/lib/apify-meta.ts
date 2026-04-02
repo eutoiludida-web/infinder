@@ -69,28 +69,37 @@ async function waitForRun(runId: string, timeoutMs = 50000): Promise<string> {
 }
 
 export async function scrapeMetaAds(
-  pageIdOrName: string,
-  limit = 50
+  keyword: string,
+  limit = 10
 ): Promise<NormalizedMetaAd[]> {
-  // Start the actor run
+  // Build Meta Ad Library URL with keyword search
+  const adLibraryUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&q=${encodeURIComponent(keyword)}`
+
   const runRes = await fetch(
     `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        searchQuery: pageIdOrName,
-        maxResults: Math.min(limit, 10),
-        countryCode: 'BR',
+        urls: [{ url: adLibraryUrl }],
+        maxAds: Math.min(limit, 10),
       }),
     }
   )
 
   if (!runRes.ok) {
+    const errBody = await runRes.text()
+    console.error('Apify start error:', errBody)
     throw new Error(`Apify start failed: ${runRes.status}`)
   }
 
   const runData: ApifyRunResponse = await runRes.json()
+
+  // Check for immediate errors
+  if (!runData.data?.id) {
+    throw new Error('Apify did not return a run ID')
+  }
+
   const datasetId = await waitForRun(runData.data.id)
 
   // Fetch results
