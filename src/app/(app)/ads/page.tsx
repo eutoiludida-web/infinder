@@ -105,11 +105,13 @@ function SkeletonCard() {
 export default function AdsIntelligence() {
   const [activeTab, setActiveTab] = useState('todos')
   const [search, setSearch] = useState('')
+  const [keywordSearch, setKeywordSearch] = useState('')
   const [ads, setAds] = useState<(Ad & { rawAnalysis?: RawAd['ad_analyses'][0] })[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Modal state
@@ -141,6 +143,53 @@ export default function AdsIntelligence() {
   useEffect(() => {
     fetchAds(1)
   }, [fetchAds])
+
+  // Keyword search — scrape Meta Ad Library via Apify
+  const handleKeywordSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!keywordSearch.trim()) return
+    setSearching(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword: keywordSearch.trim(), limit: 20 }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Erro na busca')
+      }
+      const data = await res.json()
+      // Map search results to frontend Ad type
+      const mapped = (data.ads || []).map((ad: any, i: number) => ({
+        id: ad.id || `search-${i}`,
+        externalId: ad.external_id || `search-${i}`,
+        platform: 'meta' as const,
+        competitorId: '',
+        competitorName: ad.page_name || keywordSearch,
+        thumbnailUrl: ad.image_urls?.[0] || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=400&h=500',
+        headline: ad.headline || ad.ad_text?.slice(0, 80) || 'Sem titulo',
+        text: ad.ad_text || '',
+        ctaText: ad.cta_text || '',
+        landingPageUrl: ad.landing_page_url || '',
+        status: ad.status || 'active',
+        startDate: ad.started_at || new Date().toISOString(),
+        daysActive: ad.started_at ? Math.floor((Date.now() - new Date(ad.started_at).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+        score: undefined,
+        isWinner: false,
+        isNew: true,
+      }))
+      setAds(mapped)
+      setTotal(mapped.length)
+      setTotalPages(1)
+      setPage(1)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro na busca')
+    } finally {
+      setSearching(false)
+    }
+  }
 
   const filteredAds = useMemo(() => {
     let result = ads
@@ -226,8 +275,8 @@ export default function AdsIntelligence() {
         </button>
       </header>
 
-      {/* Filters Bar */}
-      <div className="glass p-5 rounded-2xl flex flex-col lg:flex-row gap-5 items-stretch lg:items-center">
+      {/* Keyword Search */}
+      <form onSubmit={handleKeywordSearch} className="glass p-5 rounded-2xl flex flex-col sm:flex-row gap-4 items-stretch">
         <div className="relative flex-1 group">
           <SearchIcon
             className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors"
@@ -235,27 +284,46 @@ export default function AdsIntelligence() {
           />
           <input
             type="text"
-            placeholder="Buscar no texto do ad..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-surface border border-border rounded-xl py-3 pl-12 pr-5 text-sm font-medium focus:outline-none focus:border-accent/30 focus:bg-surface-hover transition-all placeholder:text-text-muted"
+            placeholder="Buscar ads por palavra-chave (ex: ecommerce, fitness, curso online...)"
+            value={keywordSearch}
+            onChange={(e) => setKeywordSearch(e.target.value)}
+            className="w-full bg-surface border border-border rounded-xl py-3.5 pl-12 pr-5 text-sm font-medium focus:outline-none focus:border-accent/30 focus:bg-surface-hover transition-all placeholder:text-text-muted"
           />
         </div>
+        <button
+          type="submit"
+          disabled={searching || !keywordSearch.trim()}
+          className="px-8 py-3.5 bg-accent hover:bg-accent-hover text-white rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          {searching ? (
+            <><Loader2 size={16} className="animate-spin" /> Buscando...</>
+          ) : (
+            <><SearchIcon size={16} /> Buscar Ads</>
+          )}
+        </button>
+      </form>
 
-        <div className="flex flex-wrap gap-3">
-          {['Concorrente', 'Status', 'Periodo'].map((filter) => (
-            <button
-              key={filter}
-              className="flex-1 sm:flex-none px-5 py-3 bg-surface border border-border rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-between sm:justify-start gap-3 hover:bg-surface-hover hover:border-accent/30 transition-all"
-            >
-              {filter} <ChevronDown size={16} className="text-text-muted" />
-            </button>
-          ))}
-          <button className="p-3 bg-surface border border-border rounded-xl text-text-secondary hover:text-accent hover:bg-surface-hover transition-all">
-            <Filter size={20} />
+      {/* Filter within results */}
+      {ads.length > 0 && (
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm group">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
+            <input
+              type="text"
+              placeholder="Filtrar resultados..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-surface border border-border rounded-lg py-2 pl-9 pr-4 text-xs font-medium focus:outline-none focus:border-accent/30 transition-all placeholder:text-text-muted"
+            />
+          </div>
+          <button
+            onClick={() => fetchAds(1)}
+            className="text-xs font-bold text-text-muted hover:text-accent transition-colors uppercase tracking-widest"
+          >
+            Ver salvos
           </button>
         </div>
-      </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-border gap-6 md:gap-10 overflow-x-auto no-scrollbar">

@@ -86,7 +86,7 @@ export async function runPipeline(
           ended_at: ad.ended_at,
           raw_data: ad.raw_data,
         },
-        { onConflict: 'competitor_id,external_id', ignoreDuplicates: true }
+        { onConflict: 'user_id,external_id', ignoreDuplicates: true }
       )
 
     if (!insertError) {

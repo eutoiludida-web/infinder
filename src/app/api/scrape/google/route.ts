@@ -52,7 +52,7 @@ export async function POST(req: Request) {
             user_id: user.id,
             ...ad,
           },
-          { onConflict: 'competitor_id,external_id', ignoreDuplicates: true }
+          { onConflict: 'user_id,external_id', ignoreDuplicates: true }
         )
 
       if (!error) {
