@@ -1,17 +1,32 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { Bell, Search, User, Menu, X, Sun, Moon, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { createSupabaseBrowser } from '@/lib/supabase';
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowser();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        const fullName = data.user.user_metadata?.full_name;
+        const email = data.user.email ?? '';
+        setUserName(fullName || email.split('@')[0]);
+        setUserEmail(email);
+      }
+    });
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-bg-primary selection:bg-accent/30 selection:text-white">
@@ -99,8 +114,8 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="h-10 w-px bg-border mx-1 md:mx-2" />
             <div className="flex items-center gap-4 cursor-pointer group p-1.5 hover:bg-surface rounded-2xl transition-all">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-display font-bold text-text-primary group-hover:text-accent transition-colors">Annie</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">annie@100fronteiras.com</p>
+                <p className="text-sm font-display font-bold text-text-primary group-hover:text-accent transition-colors">{userName ?? '...'}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">{userEmail ?? '...'}</p>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg group-hover:scale-110 transition-transform duration-500">
                 <User size={22} />

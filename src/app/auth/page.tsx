@@ -210,7 +210,7 @@ export default function AuthPage() {
 
           <p className="text-center text-xs text-text-muted">
             Ao continuar, voce concorda com nossos <br />
-            <a href="#" className="text-accent hover:underline">Termos de Servico</a> e <a href="#" className="text-accent hover:underline">Politica de Privacidade</a>.
+            <Link href="/terms" className="text-accent hover:underline">Termos de Servico</Link> e <Link href="/privacy" className="text-accent hover:underline">Politica de Privacidade</Link>.
           </p>
         </div>
       </div>

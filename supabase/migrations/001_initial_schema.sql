@@ -165,6 +165,10 @@ create or replace function public.increment_usage(
   p_type text
 ) returns void as $$
 begin
+  IF p_type NOT IN ('ads_scraped', 'ai_analyses') THEN
+    RAISE EXCEPTION 'invalid usage type: %', p_type;
+  END IF;
+
   insert into public.usage (user_id, month)
   values (p_user_id, p_month)
   on conflict (user_id, month) do nothing;

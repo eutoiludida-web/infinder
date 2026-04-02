@@ -74,7 +74,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Analysis error:', error)
     return Response.json(
-      { error: error instanceof Error ? error.message : 'Erro interno' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     )
   }

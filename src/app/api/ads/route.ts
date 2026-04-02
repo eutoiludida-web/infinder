@@ -12,7 +12,9 @@ export async function GET(req: Request) {
   const status = searchParams.get('status')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '20')
-  const offset = (page - 1) * limit
+  const safePage = Math.max(1, page)
+  const safeLimit = Math.min(Math.max(1, limit), 100)
+  const offset = (safePage - 1) * safeLimit
 
   const supabase = await createSupabaseServer()
 
@@ -21,7 +23,7 @@ export async function GET(req: Request) {
     .select('*, ad_analyses(*), competitors(name)', { count: 'exact' })
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+    .range(offset, offset + safeLimit - 1)
 
   if (platform) query = query.eq('platform', platform)
   if (competitorId) query = query.eq('competitor_id', competitorId)
@@ -35,7 +37,7 @@ export async function GET(req: Request) {
   return Response.json({
     ads: data,
     total: count || 0,
-    page,
-    totalPages: Math.ceil((count || 0) / limit),
+    page: safePage,
+    totalPages: Math.ceil((count || 0) / safeLimit),
   })
 }

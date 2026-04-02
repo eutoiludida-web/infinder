@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   LogOut,
   Zap,
-  BarChart3
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createSupabaseBrowser } from '@/lib/supabase';
@@ -24,13 +24,30 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const [planName, setPlanName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowser();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        supabase
+          .from('subscriptions')
+          .select('plan')
+          .eq('user_id', data.user.id)
+          .single()
+          .then(({ data: sub }) => {
+            setPlanName(sub?.plan ?? 'Starter');
+          });
+      }
+    });
+  }, []);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: Search, label: 'Ads Intelligence', path: '/ads' },
     { icon: Users, label: 'Concorrentes', path: '/competitors' },
     { icon: ShieldCheck, label: 'Sua Marca', path: '/brand' },
-    { icon: BarChart3, label: 'Relatorios', path: '/reports' },
+    { icon: Sparkles, label: 'Gerador IA', path: '/generate' },
   ];
 
   const handleLogout = async () => {
@@ -85,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
         <div className="glass p-6 rounded-[2rem] border border-border-subtle relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl -z-10 group-hover:bg-accent/10 transition-all duration-500" />
           <div className="flex justify-between items-center mb-4">
-            <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">Plano Starter</span>
+            <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">Plano {planName ?? '...'}</span>
             <Link href="/pricing" className="text-[10px] font-bold text-text-muted hover:text-accent underline uppercase tracking-widest transition-colors">Upgrade</Link>
           </div>
           <div className="h-2 bg-surface rounded-full overflow-hidden mb-3 shadow-inner">
@@ -96,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
               className="h-full bg-gradient-to-r from-accent to-accent-hover shadow-[0_0_10px_rgba(124,108,240,0.5)]"
             />
           </div>
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">75% do limite utilizado</p>
+          <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Uso do plano</p>
         </div>
 
         <button

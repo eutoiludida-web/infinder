@@ -1,6 +1,7 @@
 import { z } from 'zod/v4'
 import { getSession } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { checkUsageLimits, incrementUsage } from '@/lib/usage'
 
 const RequestSchema = z.object({
   adId: z.string().uuid(),
@@ -14,6 +15,11 @@ export async function POST(req: Request) {
   const body = RequestSchema.safeParse(await req.json())
   if (!body.success) return Response.json({ error: body.error }, { status: 400 })
 
+  const canGenerate = await checkUsageLimits(user.id, 'ai_analyses')
+  if (!canGenerate) {
+    return Response.json({ error: 'Limite de análises atingido' }, { status: 429 })
+  }
+
   const supabaseAdmin = getSupabaseAdmin()
 
   // Get the ad analysis
@@ -21,6 +27,7 @@ export async function POST(req: Request) {
     .from('ad_analyses')
     .select('*')
     .eq('ad_id', body.data.adId)
+    .eq('user_id', user.id)
     .single()
 
   // Get the brand
@@ -78,6 +85,7 @@ Retorne APENAS JSON valido (sem markdown):
 
     try {
       const concepts = JSON.parse(cleaned)
+      await incrementUsage(user.id, 'ai_analyses')
       return Response.json({ concepts })
     } catch {
       return Response.json({ error: 'Erro ao gerar conceitos' }, { status: 500 })
@@ -85,7 +93,7 @@ Retorne APENAS JSON valido (sem markdown):
   } catch (error) {
     console.error('Generate error:', error)
     return Response.json(
-      { error: error instanceof Error ? error.message : 'Erro interno' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     )
   }
