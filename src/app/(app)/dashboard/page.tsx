@@ -26,6 +26,13 @@ function daysBetween(dateStr: string): number {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Bom dia';
+  if (hour < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 function mapApiAdToFrontend(raw: any): Ad {
   const daysActive = raw.started_at ? daysBetween(raw.started_at) : 0;
   const score = raw.ad_analyses?.[0]?.score ?? undefined;
@@ -177,7 +184,7 @@ export default function Dashboard() {
     <div className="space-y-10">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-display font-black text-text-primary tracking-tight">Bom dia</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-black text-text-primary tracking-tight">{getGreeting()}</h1>
           <p className="text-text-secondary mt-2 font-medium">Aqui esta o que mudou no radar dos seus concorrentes hoje.</p>
         </div>
         <div className="flex items-center gap-3">
