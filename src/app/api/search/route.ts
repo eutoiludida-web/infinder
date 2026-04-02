@@ -98,22 +98,39 @@ export async function GET(req: Request) {
       )
       const items = await itemsRes.json()
 
-      const ads = (Array.isArray(items) ? items : []).map((raw: any, i: number) => ({
-        id: `search-${i}`,
-        external_id: raw.id || raw.ad_id || `ext-${i}`,
-        platform: 'meta',
-        ad_text: raw.ad_creative_bodies?.join('\n') || raw.body || null,
-        headline: raw.ad_creative_link_titles?.join(' | ') || raw.title || null,
-        cta_text: raw.cta_text || raw.cta_type || null,
-        image_urls: raw.images?.map((img: any) => img.url || img).filter(Boolean) || [],
-        video_url: raw.videos?.[0]?.url || null,
-        landing_page_url: raw.ad_snapshot_url || raw.link_url || null,
-        format: raw.videos?.length ? 'video' : (raw.images?.length > 1 ? 'carousel' : 'image'),
-        status: raw.ad_delivery_stop_time ? 'inactive' : 'active',
-        started_at: raw.ad_delivery_start_time || null,
-        ended_at: raw.ad_delivery_stop_time || null,
-        page_name: raw.page_name || raw.advertiser_name || 'Desconhecido',
-      }))
+      const ads = (Array.isArray(items) ? items : []).map((raw: any, i: number) => {
+        const snap = raw.snapshot || {}
+        const cards = snap.cards || []
+        // Extract images from cards
+        const imageUrls = cards
+          .map((c: any) => c.resized_image_url || c.original_image_url)
+          .filter(Boolean)
+        // Extract text
+        const bodyText = typeof snap.body === 'object' ? snap.body?.text : snap.body
+        const cardTitle = cards[0]?.title || null
+        // Start time can be unix timestamp
+        const startTime = snap.ad_delivery_start_time || raw.start_date
+        const startedAt = startTime
+          ? (typeof startTime === 'number' ? new Date(startTime * 1000).toISOString() : startTime)
+          : null
+
+        return {
+          id: `search-${i}`,
+          external_id: String(raw.ad_archive_id || raw.id || `ext-${i}`),
+          platform: 'meta',
+          ad_text: bodyText || null,
+          headline: cardTitle || (bodyText ? bodyText.slice(0, 80) : null),
+          cta_text: snap.cta_text || snap.cta_type || null,
+          image_urls: imageUrls,
+          video_url: null,
+          landing_page_url: snap.link_url || null,
+          format: cards.length > 1 ? 'carousel' : (imageUrls.length > 0 ? 'image' : 'text'),
+          status: raw.is_active ? 'active' : 'inactive',
+          started_at: startedAt,
+          ended_at: null,
+          page_name: raw.page_name || snap.page_name || 'Desconhecido',
+        }
+      })
 
       return Response.json({ status: 'SUCCEEDED', ads, total: ads.length })
     }
