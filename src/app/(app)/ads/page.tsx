@@ -169,9 +169,9 @@ export default function AdsIntelligence() {
 
   // Poll for search results
   async function pollResults(runId: string, keyword: string) {
-    const maxAttempts = 40 // ~2 minutes
+    const maxAttempts = 100 // ~8 minutes (Apify takes 3-7 min)
     for (let i = 0; i < maxAttempts; i++) {
-      await new Promise(r => setTimeout(r, 3000))
+      await new Promise(r => setTimeout(r, 5000))
       try {
         const res = await fetch(`/api/search?runId=${runId}`)
         if (!res.ok) continue
@@ -193,12 +193,16 @@ export default function AdsIntelligence() {
           setSearchStatus(null)
           return
         }
-        setSearchStatus(`Buscando ads... (${(i + 1) * 3}s)`)
+        const elapsed = Math.floor((i + 1) * 5)
+        const minutes = Math.floor(elapsed / 60)
+        const seconds = elapsed % 60
+        const timeStr = minutes > 0 ? `${minutes}m${seconds}s` : `${seconds}s`
+        setSearchStatus(`Scrapeando Meta Ad Library... ${timeStr} (pode levar até 5 min)`)
       } catch {
         // ignore polling errors, retry
       }
     }
-    setError('Busca demorou demais. Tente uma keyword mais específica.')
+    setError('Busca demorou mais de 8 minutos. Tente novamente ou use uma keyword mais específica.')
     setSearching(false)
     setSearchStatus(null)
   }
@@ -418,11 +422,41 @@ export default function AdsIntelligence() {
       )}
 
       {/* Loading State */}
-      {loading && !error && (
+      {loading && !error && !searching && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
+        </div>
+      )}
+
+      {/* Search in progress */}
+      {searching && (
+        <div className="glass p-16 rounded-2xl flex flex-col items-center justify-center gap-6 text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-border rounded-full" />
+            <div className="absolute inset-0 w-20 h-20 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+          <div>
+            <h3 className="text-lg font-display font-bold text-text-primary mb-2">
+              {searchStatus || 'Iniciando busca...'}
+            </h3>
+            <p className="text-sm text-text-muted max-w-md">
+              Estamos acessando a Meta Ad Library para encontrar anúncios relevantes.
+              Esse processo normalmente leva de 3 a 5 minutos.
+            </p>
+          </div>
+          <div className="flex gap-3 mt-2">
+            {['Conectando', 'Scrapeando', 'Processando'].map((step, i) => (
+              <div key={step} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  i === 0 ? "bg-success" : i === 1 ? "bg-accent animate-pulse" : "bg-border"
+                )} />
+                {step}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
